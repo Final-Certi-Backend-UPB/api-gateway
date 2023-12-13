@@ -18,3 +18,8 @@ export const service = {
   patient: process.env.PATIENT_SERVICE_NAME || "PATIENT-SERVICE",
   doctor: process.env.DOCTOR_SERVICE_NAME || "DOCTOR-SERVICE",
 }
+
+export const auth = {
+  jwtSecret: process.env.JWT_SECRET || "my_secret",
+  jwtExpTime: process.env.JWT_EXP_TIME || "1h",
+}

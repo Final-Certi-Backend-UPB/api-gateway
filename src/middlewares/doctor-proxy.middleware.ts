@@ -1,13 +1,18 @@
-import { Inject, NestMiddleware, ServiceUnavailableException } from "@nestjs/common";
+import { ForbiddenException, Inject, NestMiddleware, ServiceUnavailableException, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { Request, Response } from "express";
 import { RequestHandler, createProxyMiddleware } from "http-proxy-middleware";
-import { service } from "src/config/config";
+import { auth, service } from "src/config/config";
+import { Role } from "src/enums/role.enum";
+import { User } from "src/models/user.model";
 import { EUREKA, EurekaService } from "src/services/eureka.service";
+import { extractTokenFromHeader } from "src/utils/extractToken";
 
 export class DoctorProxyMiddleware implements NestMiddleware {
   constructor(
     @Inject(EUREKA)
-    private readonly eurekaService: EurekaService
+    private readonly eurekaService: EurekaService,
+    private readonly jwtService: JwtService,
   ) { }
 
   private proxy: RequestHandler;
@@ -38,8 +43,27 @@ export class DoctorProxyMiddleware implements NestMiddleware {
     return this.proxy;
   }
 
-  use(req: Request, res: Response, next: (error?: any) => void) {
-    // TODO: Verificar token con rol DOCTOR
+  async use(req: Request, res: Response, next: (error?: any) => void) {
+    const token = extractTokenFromHeader(req);
+    if (!token) {
+      throw new UnauthorizedException("No Token is provided");
+    }
+
+    let userInfo: User;
+    try {
+      userInfo = await this.jwtService.verifyAsync(
+        token, { secret: auth.jwtSecret }
+      );
+    } catch {
+      throw new UnauthorizedException("Invalid Token");
+    }
+
+    if (userInfo.role !== Role.DOCTOR) {
+      throw new ForbiddenException("Only DOCTOR users have access");
+    }
+
+    req['user'] = userInfo;
+
     const proxy = this.getProxy();
     proxy(req, res, next);
   }
