@@ -67,7 +67,7 @@ export class DoctorProxyMiddleware implements NestMiddleware {
       throw new ForbiddenException("Only DOCTOR users have access");
     }
 
-    req['user'] = userInfo;
+    req.headers['user'] = userInfo.userId;
 
     const proxy = this.getProxy();
     proxy(req, res, next);

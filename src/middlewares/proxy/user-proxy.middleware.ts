@@ -69,7 +69,7 @@ export class UserProxyMiddleware implements NestMiddleware {
       throw new ForbiddenException("Only ADMIN users have access");
     }
 
-    req['user'] = userInfo;
+    req.headers['user'] = userInfo.userId;
 
     const proxy = this.getProxy();
     proxy(req, res, next);
