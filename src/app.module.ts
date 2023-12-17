@@ -1,13 +1,16 @@
+import { HttpModule } from '@nestjs/axios';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { EUREKA, EurekaService } from './services/eureka.service';
-import { UserProxyMiddleware } from './middlewares/user-proxy.middleware';
-import { PatientProxyMiddleware } from './middlewares/patient-proxy.middleware';
-import { DoctorProxyMiddleware } from './middlewares/doctor-proxy.middleware';
-import { AuthController } from './controllers/auth.controller';
-import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { auth } from './config/config';
-import { HttpModule } from '@nestjs/axios';
+import { AuthController } from './controllers/auth.controller';
+import { DoctorProxyMiddleware } from './middlewares/proxy/doctor-proxy.middleware';
+import { PatientProxyMiddleware } from './middlewares/proxy/patient-proxy.middleware';
+import { UserProxyMiddleware } from './middlewares/proxy/user-proxy.middleware';
+import { AuthService } from './services/auth.service';
+import { EUREKA, EurekaService } from './services/eureka.service';
+import { MorganMiddleware } from './middlewares/morgan.middleware';
+import rateLimit from 'express-rate-limit';
+import { rateLimitConfig } from './config/rateLimiter';
 
 @Module({
   imports: [
@@ -30,6 +33,8 @@ import { HttpModule } from '@nestjs/axios';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
+      .apply(rateLimit(rateLimitConfig)).forRoutes("/")
+      .apply(MorganMiddleware).forRoutes("/")
       .apply(UserProxyMiddleware).forRoutes("/users")
       .apply(PatientProxyMiddleware).forRoutes("/patients")
       .apply(DoctorProxyMiddleware).forRoutes("/doctors")

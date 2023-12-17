@@ -37,7 +37,6 @@ export class EurekaService {
     const apps = this.eureka.getInstancesByAppId(appId);
 
     if (apps.length < 1){
-      Logger.warn(`No existe el servicio '${appId}'`);
       return null;
     }
     return apps[0].homePageUrl;

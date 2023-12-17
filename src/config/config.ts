@@ -23,3 +23,7 @@ export const auth = {
   jwtSecret: process.env.JWT_SECRET || "my_secret",
   jwtExpTime: process.env.JWT_EXP_TIME || "1h",
 }
+
+export const rateLimiter = {
+  maxReqPerMinute: Number(process.env.MAX_REQ_PER_MINUTE) || 100
+}

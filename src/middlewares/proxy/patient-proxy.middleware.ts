@@ -1,14 +1,16 @@
-import { ForbiddenException, Inject, NestMiddleware, ServiceUnavailableException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, Inject, Logger, NestMiddleware, ServiceUnavailableException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request, Response } from "express";
-import { RequestHandler, createProxyMiddleware } from "http-proxy-middleware";
+import { RequestHandler, createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 import { auth, service } from "src/config/config";
 import { Role } from "src/enums/role.enum";
 import { User } from "src/models/user.model";
 import { EUREKA, EurekaService } from "src/services/eureka.service";
 import { extractTokenFromHeader } from "src/utils/extractToken";
 
-export class DoctorProxyMiddleware implements NestMiddleware {
+export class PatientProxyMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(PatientProxyMiddleware.name);
+
   constructor(
     @Inject(EUREKA)
     private readonly eurekaService: EurekaService,
@@ -16,26 +18,29 @@ export class DoctorProxyMiddleware implements NestMiddleware {
   ) { }
 
   private proxy: RequestHandler;
-  private DOCTOR_SERVICE_URL: string;
+  private PATIENT_SERVICE_URL: string;
 
   getProxy() {
-    const serviceUrl = this.eurekaService.getServiceUrl(service.doctor);
+    const serviceUrl = this.eurekaService.getServiceUrl(service.patient);
     if (!serviceUrl) {
-      throw new ServiceUnavailableException("DOCTOR-SERVICE is not available in this moment");
+      this.logger.error("PATIENT-SERVICE is not available in this moment");
+      throw new ServiceUnavailableException("PATIENT-SERVICE is not available in this moment");
     }
 
-    if (serviceUrl === this.DOCTOR_SERVICE_URL) {
+    if (serviceUrl === this.PATIENT_SERVICE_URL) {
       return this.proxy;
     }
 
-    this.DOCTOR_SERVICE_URL = serviceUrl;
+    this.PATIENT_SERVICE_URL = serviceUrl;
 
     const newProxy = createProxyMiddleware({
-      target: this.DOCTOR_SERVICE_URL,
+      target: this.PATIENT_SERVICE_URL,
       pathRewrite: {
-        "/api/v1/doctors": "/doctors"
+        "/api/v1/patients": "/"
       },
       changeOrigin: true,
+      secure: false,
+      onProxyReq: fixRequestBody,
     });
 
     this.proxy = newProxy;
@@ -50,6 +55,7 @@ export class DoctorProxyMiddleware implements NestMiddleware {
     }
 
     let userInfo: User;
+
     try {
       userInfo = await this.jwtService.verifyAsync(
         token, { secret: auth.jwtSecret }
@@ -58,8 +64,8 @@ export class DoctorProxyMiddleware implements NestMiddleware {
       throw new UnauthorizedException("Invalid Token");
     }
 
-    if (userInfo.role !== Role.DOCTOR) {
-      throw new ForbiddenException("Only DOCTOR users have access");
+    if (userInfo.role !== Role.PATIENT) {
+      throw new ForbiddenException("Only PATIENT users have access");
     }
 
     req['user'] = userInfo;
