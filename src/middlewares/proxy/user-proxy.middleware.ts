@@ -37,7 +37,7 @@ export class UserProxyMiddleware implements NestMiddleware {
     const newProxy = createProxyMiddleware({
       target: this.USER_SERVICE_URL,
       pathRewrite: {
-        "/api/v1/users": "/"
+        "/api/v1/": "/"
       },
       changeOrigin: true,
       secure: false,

@@ -36,7 +36,7 @@ export class DoctorProxyMiddleware implements NestMiddleware {
     const newProxy = createProxyMiddleware({
       target: this.DOCTOR_SERVICE_URL,
       pathRewrite: {
-        "/api/v1/doctors": "/"
+        "/api/v1/": "/"
       },
       changeOrigin: true,
       secure: false,

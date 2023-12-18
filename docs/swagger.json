@@ -23,6 +23,11 @@
       "description": "Doctors Service"
     }
   ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
   "paths": {
     "/auth/login": {
       "post": {
@@ -405,6 +410,13 @@
           "message"
         ]
       }
-    }
+    },
+    "securitySchemes": {
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      }
   }
 }
