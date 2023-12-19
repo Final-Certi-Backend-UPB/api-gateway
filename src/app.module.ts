@@ -11,6 +11,8 @@ import { PatientProxyMiddleware } from './middlewares/proxy/patient-proxy.middle
 import { UserProxyMiddleware } from './middlewares/proxy/user-proxy.middleware';
 import { AuthService } from './services/auth.service';
 import { EUREKA, EurekaService } from './services/eureka.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksService } from './services/tasks.service';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { EUREKA, EurekaService } from './services/eureka.service';
       secret: auth.jwtSecret,
       signOptions: { expiresIn: auth.jwtExpTime },
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [AuthController],
   providers: [
@@ -28,6 +31,7 @@ import { EUREKA, EurekaService } from './services/eureka.service';
       useClass: EurekaService
     },
     AuthService,
+    TasksService,
   ],
 })
 export class AppModule implements NestModule {

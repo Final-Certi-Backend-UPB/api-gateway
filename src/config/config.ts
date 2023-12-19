@@ -1,3 +1,4 @@
+import { LogLevel } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -5,7 +6,8 @@ export const env = {
   name: process.env.SERVICE_NAME || 'API-GATEWAY',
   host: process.env.ENV_HOST || 'localhost',
   port: Number(process.env.ENV_PORT) || 3000,
-  environment: process.env.ENV || 'develop'
+  environment: process.env.ENV || 'develop',
+  logLevel: (process.env.LOG_LEVEL || 'debug') as LogLevel
 };
 
 export const eureka = {
