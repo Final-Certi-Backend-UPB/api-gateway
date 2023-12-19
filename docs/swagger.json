@@ -5,6 +5,24 @@
     "description": "Documentation for the API Gateway in nest",
     "version": "1.0"
   },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Users can Sign In with Email and Password"
+    },
+    {
+      "name": "Users",
+      "description": "Admin Users Only, CRUD for User Entities"
+    },
+    {
+      "name": "Doctors",
+      "description": "Doctor Users Only, get dates and patients history"
+    },
+    {
+      "name": "Patients",
+      "description": "Patient Users Only, get available appointments, today appointments, and book an appointment"
+    }
+  ],
   "servers": [
     {
       "url": "http://localhost:9000/api/v1",
@@ -31,7 +49,7 @@
   "paths": {
     "/auth/login": {
       "post": {
-        "summary": "Sign In",
+        "description": "Sign In",
         "operationId": "signIn",
         "tags": [
           "Authentication"
@@ -62,7 +80,7 @@
     },
     "/users": {
       "get": {
-        "summary": "Get all users",
+        "description": "Get all users",
         "operationId": "getAllUsers",
         "tags": [
           "Users"
@@ -81,7 +99,7 @@
         }
       },
       "post": {
-        "summary": "Create a user",
+        "description": "Create a user",
         "operationId": "createUser",
         "tags": [
           "Users"
@@ -112,7 +130,7 @@
     },
     "/users/{userId}": {
       "get": {
-        "summary": "Get user by ID",
+        "description": "Get user by ID",
         "operationId": "getUserById",
         "tags": [
           "Users"
@@ -141,7 +159,7 @@
         }
       },
       "put": {
-        "summary": "Update user by ID",
+        "description": "Update user by ID",
         "operationId": "updateUser",
         "tags": [
           "Users"
@@ -180,7 +198,7 @@
         }
       },
       "delete": {
-        "summary": "Delete user by ID",
+        "description": "Delete user by ID",
         "operationId": "deleteUser",
         "tags": [
           "Users"
@@ -211,7 +229,7 @@
     },
     "/users/check": {
       "post": {
-        "summary": "Check user credentials",
+        "description": "Check user credentials",
         "operationId": "checkCredentials",
         "tags": [
           "Users"
@@ -233,6 +251,191 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InfoMessageUserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctors/dates": {
+      "get": {
+        "description": "Get doctor dates.",
+        "parameters": [
+          {
+            "name": "doctorId",
+            "in": "header",
+            "description": "ID del doctor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Doctors"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de citas devuelta correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppointmentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctors/history/{patientId}": {
+      "get": {
+        "description": "Get history by patient ID",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "path",
+            "description": "ID del paciente",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "doctorId",
+            "in": "header",
+            "description": "ID del doctor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Doctors"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de citas pasadas devuelta correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppointmentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients/appointments/available": {
+      "get": {
+        "description": "Get available schedule.",
+        "tags": [
+          "Patients"
+        ],
+        "parameters": [
+          {
+            "name": "speciality",
+            "in": "query",
+            "description": "Especialidad para filtrar horarios (opcional)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de horarios devuelta correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patients/appointments": {
+      "get": {
+        "description": "Get today Appointments.",
+        "tags": [
+          "Patients"
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "header",
+            "description": "ID del paciente",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de citas devuelta correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AppointmentResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Book an appointment.",
+        "tags": [
+          "Patients"
+        ],
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "header",
+            "description": "ID del paciente",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Detalles de la cita a reservar",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita reservada correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponse"
                 }
               }
             }
@@ -409,14 +612,92 @@
         "required": [
           "message"
         ]
+      },
+      "AppointmentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID de la cita"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora de la cita"
+          },
+          "idPatient": {
+            "type": "string",
+            "description": "ID del paciente"
+          },
+          "schedule_selected": {
+            "type": "integer",
+            "description": "ID del horario seleccionado"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "idPatient",
+          "schedule_selected"
+        ]
+      },
+      "AppointmentRequest": {
+        "type": "object",
+        "properties": {
+          "idPatient": {
+            "type": "string",
+            "description": "ID del paciente"
+          },
+          "idSchedule": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID del horario seleccionado"
+          },
+          "optionSelected": {
+            "type": "integer",
+            "description": "Opción seleccionada (si aplica)"
+          }
+        },
+        "required": [
+          "idPatient",
+          "idSchedule"
+        ]
+      },
+      "ScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "scheduleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID del horario"
+          },
+          "doctorId": {
+            "type": "string",
+            "description": "ID del doctor"
+          },
+          "options": {
+            "type": "string",
+            "description": "Opciones (detalles adicionales)"
+          },
+          "speciality": {
+            "type": "string",
+            "description": "Especialidad del doctor"
+          }
+        },
+        "required": [
+          "scheduleId",
+          "doctorId",
+          "speciality"
+        ]
       }
     },
     "securitySchemes": {
-        "BearerAuth": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        }
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
+    }
   }
 }
