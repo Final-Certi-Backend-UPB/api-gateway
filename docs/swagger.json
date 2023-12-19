@@ -626,9 +626,8 @@
             "format": "date-time",
             "description": "Fecha y hora de la cita"
           },
-          "idPatient": {
-            "type": "string",
-            "description": "ID del paciente"
+          "patient": {
+            "$ref": "#/components/schemas/UserDto"
           },
           "schedule_selected": {
             "type": "integer",
@@ -645,10 +644,6 @@
       "AppointmentRequest": {
         "type": "object",
         "properties": {
-          "idPatient": {
-            "type": "string",
-            "description": "ID del paciente"
-          },
           "idSchedule": {
             "type": "integer",
             "format": "int64",
@@ -672,9 +667,8 @@
             "format": "int64",
             "description": "ID del horario"
           },
-          "doctorId": {
-            "type": "string",
-            "description": "ID del doctor"
+          "doctor": {
+            "$ref": "#/components/schemas/UserDto"
           },
           "options": {
             "type": "string",
