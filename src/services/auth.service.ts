@@ -27,7 +27,7 @@ export class AuthService {
     }
 
     const { data, status } = await firstValueFrom(
-      this.httpService.post(serviceUrl + "/check",
+      this.httpService.post(serviceUrl + "/users/check",
         { email, password },
         { validateStatus: null })
         .pipe(
